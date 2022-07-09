@@ -1,0 +1,42 @@
+@startuml
+skinparam defaultFontName Arial Black 
+
+folder "Deployment diagram - PLANTella" {
+node :Mobile/Desktop <<device>> as md {
+  node "<b>:Web Browser" <<execution environment>> as browser {
+    
+  }
+}
+
+node :RPI-ZW <<device>> as rpi {
+  node ":Linux 5.4" <<os>> as linux {
+    node ":Web Interface" <<package>> as web {
+      node ":Back-end" <<execution environment>> as be {
+
+      }
+
+      node ":Front-end" <<content>> as fe {
+
+      }
+    }
+
+    file ":config.json" as cj
+    file ":data.json" as dj
+
+    node ":Central Application" <<execution environment>> as ca {
+    }
+  }
+}
+
+node :PSoC-5LP <<device>> as psoc {
+  node ":Measurement Application" <<execution environment>> as ma {
+  }
+}
+}
+
+be -- browser : <<protocol>> HTTP
+ma -- ca : <<protocol>> I2C
+
+ca -[hidden]- web
+
+@enduml

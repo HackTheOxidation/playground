@@ -1,0 +1,42 @@
+@startuml
+
+folder "Domain model - PLANTella" {
+skinparam classAttributeIconSize 0
+class "WebInterface" as Web {
+ -latestMeasurement
+}
+
+class "CentralApplication" as CA {
+ -measurements
+}
+
+class "Configuration" as CF {
+ -plantID
+ -humidityThreshold
+}
+
+class "Data" as DT {
+ -measurement
+ -timestamp
+}
+
+skinparam classAttributeIconSize 0
+class "MeasuringApplication" as MA {
+ -configuration
+ -currentMeasurement
+}
+
+mix_actor User
+mix_actor "House Plant" as Plant
+
+}
+
+User -r- Web : accesses >
+Web -- CF : reads/writes >
+Web -- DT : reads >
+CA "1" -- "1..*" MA : reads/configures >
+CA "1" *-u- "1..*" CF : reads >
+CA "1" *-u- "1..*" DT : reads/writes >
+MA -l- Plant : regulates/measures >
+
+@enduml
