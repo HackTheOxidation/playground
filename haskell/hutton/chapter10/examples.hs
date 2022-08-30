@@ -14,13 +14,12 @@ act = do
   return (x,y)
 
 getLine :: IO String
-getLine = do
-  x <- getChar
-  if x == '\n' then
-    return []
-  else
-   do xs <- Interactions.getLine;
-       return (x:xs)
+getLine = do x <- getChar
+             if x == '\n' then
+               return []
+               else
+               do xs <- Interactions.getLine
+                  return (x:xs)
 
 putStr :: String -> IO ()
 putStr [] = return ()
