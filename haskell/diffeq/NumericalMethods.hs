@@ -1,17 +1,24 @@
 {- Implementation of Numerical approximation methods for use with differential equations. -}
-module NumericalMethods (
+module Methods.NumericalMethods (
   euler
   , improvedEuler
   , rungeKutta4
+  , StepSize
+  , NumericalMethod
+  , BivariateDiffEq
 ) where
 
+type StepSize = Double
+type BivariateDiffEq = Double -> Double -> Double
+type NumericalMethod a = a -> a -> BivariateDiffEq -> StepSize -> [(a, a)]
+
 -- Example function
-f1 :: Fractional a => Real a => a -> a -> a
+f1 :: BivariateDiffEq
 f1 x y = x + (y / 5.0)
 
 
 -- Implementation of Euler's Method
-euler :: Real a => a -> a -> (a -> a -> a) -> a -> [(a, a)]
+euler :: NumericalMethod Double
 euler x0 y0 f h = (x1, y1) : euler x1 y1 f h
   where
     x1 = x0 + h
@@ -19,7 +26,7 @@ euler x0 y0 f h = (x1, y1) : euler x1 y1 f h
 
 
 -- Implementation of the Improved Euler's Method
-improvedEuler :: Fractional a => Real a => a -> a -> (a -> a -> a) -> a -> [(a, a)]
+improvedEuler :: NumericalMethod Double
 improvedEuler x0 y0 f h = (x1, y1) : improvedEuler x1 y1 f h
     where
         y1 = y0 + h * ((k1 + k2) / 2)
@@ -29,7 +36,7 @@ improvedEuler x0 y0 f h = (x1, y1) : improvedEuler x1 y1 f h
         x1 = x0 + h
 
 -- Implementation of Runge-Kutta RK4 method
-rungeKutta4 :: Fractional a => Real a => a -> a -> (a -> a -> a) -> a -> [(a, a)]
+rungeKutta4 :: NumericalMethod Double
 rungeKutta4 x0 y0 f h = (x1, y1) : rungeKutta4 x1 y1 f h
   where
     y1 = y0 + h * k
