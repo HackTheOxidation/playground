@@ -1,3 +1,12 @@
+module LazyQueue 
+( LazyQueue
+, empty
+, len
+, isEmpty
+, insert
+, inserts
+, remove
+) where
 
 type LazyQueue a = ([a],[a])
 
