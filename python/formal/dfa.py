@@ -1,5 +1,7 @@
 """
 """
+from functools import reduce
+
 
 class DFA:
     def __init__(self, q, sigma, delta, q0, f):
@@ -10,11 +12,7 @@ class DFA:
         self.f = f
 
     def run(self, w):
-        q = self.q0
-        for c in w:
-            q = self.delta[(q, c)]
-
-        return q in self.f
+        return reduce(lambda q, c: self.delta[(q, c)], w, self.q0) in self.f
 
     def minimize(self):
         pass
