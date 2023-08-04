@@ -5,7 +5,7 @@ from functools import reduce
 
 class DFA:
     def __init__(self, q, sigma, delta, q0, f):
-        self.q = q
+        self.q = frozenset(q)
         self.sigma = sigma
         self.delta = delta
         self.q0 = q0
