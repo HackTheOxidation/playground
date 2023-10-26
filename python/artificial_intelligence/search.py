@@ -1,35 +1,19 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from queue import Queue
-from typing import Any, Callable, Iterable, Optional, TypeVar
+from typing import Any, Callable
 
 
+@dataclass(unsafe_hash=True)
 class Node:
-    def __init__(self, state: Any, parent: Node | None = None, children: list[Node] = []):
-        self._state = state
-        self._parent = parent
-        self._children = children
+    state: Any
+    parent: Node | None = None
+    children: frozenset[Node] = field(default_factory=frozenset)
 
-    @property
-    def state(self):
-        return self._state
-
-    @property
-    def children(self):
-        return self._children
-
-    @property
-    def parent(self):
-        return self._parent
-
-    @parent.setter
-    def parent(self, value):
-        self._parent = value
-
-    def add_children(self, *children: list[Node]):
-        for child in children:
-            self.children.append(child)
+    def set_children(self, *children):
+        self.children = frozenset(children)
+        for child in self.children:
             child.parent = self
         return self
 
@@ -41,7 +25,7 @@ class Node:
 
 
 def search(graph: Node, goal_test: Callable[[Any], bool]):
-    frontier = Queue()
+    frontier: Queue[Node] = Queue()
     frontier.put(graph)
     visited = set()
 
@@ -69,8 +53,8 @@ def search(graph: Node, goal_test: Callable[[Any], bool]):
 
 
 if __name__ == "__main__":
-    graph = Node("A").add_children(
-        Node("B").add_children(Node("C").add_children(Node("E")), Node("D").add_children(Node("F")))
+    graph = Node("A").set_children(
+        Node("B").set_children(Node("C").set_children(Node("E")), Node("D").set_children(Node("F")))
     )
 
     solution = search(graph, lambda s: s == "E")
