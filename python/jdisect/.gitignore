@@ -1,0 +1,3 @@
+*.class
+*.jasm
+*__pycache__*
