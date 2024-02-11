@@ -1,0 +1,6 @@
+{
+  "imports": {
+    // $ is convention to show aliasing.
+    "$std/": "https://deno.land/std@0.215.0/"
+  }
+}
