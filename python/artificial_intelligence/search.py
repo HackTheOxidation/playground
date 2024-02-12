@@ -22,6 +22,11 @@ class Node:
 
     def __repr__(self) -> str:
         return f"Node({self.state})"
+    
+    def __iter__(self):
+        yield self
+        for child in self.children:
+            yield from iter(child)
 
 
 def search(graph: Node, goal_test: Callable[[Any], bool]):
@@ -54,7 +59,9 @@ def search(graph: Node, goal_test: Callable[[Any], bool]):
 
 if __name__ == "__main__":
     graph = Node("A").set_children(
-        Node("B").set_children(Node("C").set_children(Node("E")), Node("D").set_children(Node("F")))
+        Node("B").set_children(
+            Node("C").set_children(Node("E")),
+            Node("D").set_children(Node("F")))
     )
 
     solution = search(graph, lambda s: s == "E")
