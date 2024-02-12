@@ -1,9 +1,7 @@
 from abc import ABC
-from copy import deepcopy
 from dataclasses import dataclass
 
 
-@dataclass(eq=True, frozen=True)
 class Message(ABC):
     pass
 
@@ -17,23 +15,29 @@ class Var(Message):
 class Const(Message):
     message: str
 
-
 @dataclass(eq=True, frozen=True)
-class Crypt(Message):
+class CryptoMessage(Message):
     key: Message
     message: Message
 
+    def __iter__(self):
+        yield from (self.key, self.message)
 
-@dataclass(eq=True, frozen=True)
-class Scrypt(Message):
-    key: Message
-    message: Message
+class Crypt(CryptoMessage):
+    pass
+
+
+class Scrypt(CryptoMessage):
+    pass
 
 
 @dataclass(eq=True, frozen=True)
 class Pair(Message):
     first: Message
     second: Message
+
+    def __iter__(self):
+        yield from (self.first, self.second)
 
 
 @dataclass(eq=True, frozen=True)
@@ -48,45 +52,34 @@ def dolev_yao_c(knowledge: set[Message], m: Message) -> bool:
     if m in knowledge:
         return True
 
-    match m:
-        case Crypt(key=k, message=m0) | Scrypt(key=k, message=m0):
-            return all(dolev_yao_c(knowledge, m) for m in (k, m0))
-        case Pair(first=m0, second=m1):
-            return all(dolev_yao_c(knowledge, m) for m in (m0, m1))
-        case _:
-            return False
+    if any(isinstance(m, cls) for cls in (Crypt, Scrypt, Pair)):
+        return all(dolev_yao_c(knowledge, msg) for msg in m)
+
+    return False
 
 
-def analyse_imp(knowledge: set[Message]) -> set[Message]:
+def analyse_imp(new: set[Message]) -> set[Message]:
     '''
     Imperative implementation of the knowledge analysis algorithm.
     '''
-    new = knowledge
     hold = set()
     done = set()
 
-    def update_crypt(m, n):
-        new.add(m)
-        done.add(n)
-        new = new.union(hold)
-        hold = set()
-        
-    while new:
-        match (n := new.pop()):
-            case Crypt(key=Inv(message=k), message=m):
-                update_crypt(m, n)
-            case Crypt(key=k, message=m) | Scrypt(key=k, message=m):
-                k = Inv(k) if isinstance(n, Crypt) else k
-                if dolev_yao_c(new.union(hold).union(done), k):
-                    update_crypt(m, n)
-                else:
-                    hold.add(n)
-            case Pair(first=m0, second=m1):
-                new = set((m0, m1)).union(new).union(hold)
+    while new and (n := new.pop()):
+        if isinstance(n, CryptoMessage):
+            k, m = n
+            k = Inv(k) if isinstance(n, Crypt) and not isinstance(k, Inv) else k
+            if dolev_yao_c(new.union(hold).union(done), k):
+                new = new.union(hold).union((m,))
+                done.add(n)
                 hold = set()
-                done.add(n)
-            case _:
-                done.add(n)
+            else:
+                hold.add(n)
+            continue
+        elif isinstance(n, Pair):
+            new = new.union(hold).union(*n)
+            hold = set()
+        done.add(n)
 
     return hold.union(done)
         
@@ -131,7 +124,7 @@ def dolev_yao(knowledge: set[Message], m: Message) -> bool:
     '''
     Full (unrestricted) Dolev-Yao model.
     '''
-    return dolev_yao_c(analyse(knowledge), m)
+    return dolev_yao_c(analyse_imp(knowledge), m)
 
 
 if __name__ == '__main__':
