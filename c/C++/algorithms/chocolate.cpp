@@ -3,7 +3,6 @@
 #include <functional>
 #include <iostream>
 #include <map>
-#include <optional>
 #include <utility>
 
 using Coord = std::pair<std::size_t, std::size_t>;

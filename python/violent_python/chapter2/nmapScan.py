@@ -3,6 +3,7 @@
 import nmap
 import optparse
 
+
 def nmapScan(tgtHost, tgtPort):
     nmScan = nmap.PortScanner();
     nmScan.scan(tgtHost, tgtPort)
