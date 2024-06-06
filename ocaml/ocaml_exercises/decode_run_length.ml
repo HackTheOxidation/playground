@@ -13,5 +13,5 @@ let rec count all counter current = function
 let decode = function
   | [] -> []
   | x::xs ->
-      let counted = count [] 1 x xs
-      List.map (fun (c, x) -> if c == 1 then One x else Many (c, x)) counted
+     count [] 1 x xs
+     |> List.map (fun (c, x) -> if c == 1 then One x else Many (c, x))
