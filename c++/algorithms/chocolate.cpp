@@ -5,18 +5,18 @@
 #include <map>
 #include <utility>
 
-using Coord = std::pair<std::size_t, std::size_t>;
-using Profits = std::map<Coord, int>;
+using Coordinates = std::pair<std::size_t, std::size_t>;
+using Profits = std::map<Coordinates, int>;
 using ProfitFun = std::function<int(std::size_t, std::size_t)>;
 template<std::size_t N> using Pricelist = const std::array<int, N>;
 
-auto maximum_profit(const Profits &profits) -> Coord {
+auto maximum_profit(const Profits &profits) -> Coordinates {
   auto [k, _] = *std::max_element(profits.begin(), profits.end());
   return k;
 }
 
 template<std::size_t N>
-auto chocolate_profit(const std::size_t x, Pricelist<N> s, Pricelist<N> b) -> Coord {
+auto chocolate_profit(const std::size_t x, Pricelist<N> s, Pricelist<N> b) -> Coordinates {
   ProfitFun profit = [&, s, b](const std::size_t i, const std::size_t j) {
     return b[j] - s[i] - (int(j) - int(i)) * 100;
   };
